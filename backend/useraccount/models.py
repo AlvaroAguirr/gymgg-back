@@ -2,6 +2,8 @@ import uuid
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin,UserManager
+from membership.models import Membership
+from dateutil.relativedelta import relativedelta
 
 
 # Create your models here.
@@ -39,6 +41,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     email=models.EmailField(unique=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     avatar= models.ImageField(upload_to='uploads/avatars')
+    membership = models.ForeignKey(Membership, related_name='membership', on_delete=models.CASCADE, null=True, blank=True)
+    date_pay = models.DateTimeField(null=True, blank=True)
+    date_expiration = models.DateField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.date_expiration:
+            if self.membership:
+                self.date_expiration = self.date_pay + relativedelta(months=self.membership.membership_duration)
+        super().save(*args, **kwargs)
 
     is_active= models.BooleanField(default=True)
     is_superuser=models.BooleanField(default=False)

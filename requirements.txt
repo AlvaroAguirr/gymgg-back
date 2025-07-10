@@ -2,6 +2,6 @@ django
 djangorestframework
 Pillow
 django-cors-headers
+python-dateutil
 djangorestframework-simplejwt
-
 dj-rest-auth

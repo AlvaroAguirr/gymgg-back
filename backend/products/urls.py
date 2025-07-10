@@ -9,5 +9,8 @@ urlpatterns = [
     path('create', views.ProductoCreateApi.as_view()),
     path('detail/<pk>', views.ProductoDetailApi.as_view()),
     path('delete/<pk>', views.ProductoDeleteApi.as_view()),
-    path('update/<pk>', views.ProductoUpdateApi.as_view())
+    path('update/<pk>', views.ProductoUpdateApi.as_view()),
+    path('categories/', views.CategoryListApi.as_view()),
+
+    
 ]

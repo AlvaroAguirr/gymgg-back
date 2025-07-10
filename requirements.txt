@@ -2,3 +2,4 @@ django
 djangorestframework
 Pillow
 django-cors-headers
+python-dateutil

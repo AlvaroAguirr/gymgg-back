@@ -4,10 +4,20 @@ from .models import Product,Category
 
 
 class ProductoSerializer(serializers.ModelSerializer):
-    category = serializers.StringRelatedField()
+    category = serializers.SlugRelatedField(
+        slug_field='name_category',
+        queryset=Category.objects.all()
+    )
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = [
+            'id',
+            'name_product',
+            'price_product',
+            'description',
+            'stock',
+            'category',
+        ]
 
 
 class CategoriesSerializer (serializers.ModelSerializer):

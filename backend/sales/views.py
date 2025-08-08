@@ -6,8 +6,9 @@ from rest_framework.generics import (
 )
 from .models import Sales
 from .serializers import SaleSerializer
+from rest_framework import generics
 
-class SaleListApi(ListAPIView):
+class SaleListCreateView(generics.ListCreateAPIView):
     queryset = Sales.objects.all()
     serializer_class = SaleSerializer
 

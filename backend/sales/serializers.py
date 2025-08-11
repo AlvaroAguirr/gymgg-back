@@ -20,7 +20,7 @@ class SaleItemSerializer(serializers.ModelSerializer):
         read_only_fields = ['total_price']
 class SaleSerializer(serializers.ModelSerializer):
     items = SaleItemSerializer(many=True)
-    total_price = serializers.ReadOnlyField()
+    # total_price = serializers.ReadOnlyField()
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:

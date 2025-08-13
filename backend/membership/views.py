@@ -21,6 +21,7 @@ class MembershipListApi(ListAPIView):
     
 
 class MembershipCreateApi(CreateAPIView):
+    permission_classes = [AllowAny]
     serializer_class=MembershipSerializer
 
 

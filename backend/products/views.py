@@ -15,7 +15,6 @@ from .serializers import ProductoSerializer, CategoriesSerializer
 class ProductoListApi(ListAPIView):
     serializer_class = ProductoSerializer
     permission_classes = [AllowAny]
-    
     def get_queryset(self):
         return Product.objects.all()
     

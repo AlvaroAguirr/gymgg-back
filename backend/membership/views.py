@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from .models import Membership
 from .serializers import MembershipSerializer
+from rest_framework.permissions import AllowAny
+
 
 from rest_framework.generics import (
 
@@ -13,6 +15,7 @@ from rest_framework.generics import (
 
 class MembershipListApi(ListAPIView):
     serializer_class=MembershipSerializer
+    permission_classes = [AllowAny]
     def get_queryset(self):
         return Membership.objects.all()
     

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from useraccount.serializers import UserSerializer
 from products.serializers import ProductoSerializer
 from .models import Sales, SaleItem
 from useraccount.models import User
@@ -20,12 +21,18 @@ class SaleItemSerializer(serializers.ModelSerializer):
         read_only_fields = ['total_price']
 class SaleSerializer(serializers.ModelSerializer):
     items = SaleItemSerializer(many=True)
-    # total_price = serializers.ReadOnlyField()
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    # user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    user = UserSerializer(read_only=True)  # Muestra info completa al hacer GET
+
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source="user",
+        write_only=True
+    )
 
     class Meta:
         model = Sales
-        fields = ['id', 'created_at', 'user', 'items', 'total_price']
+        fields = ['id', 'created_at', 'user', "user_id", 'items', 'total_price']
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')

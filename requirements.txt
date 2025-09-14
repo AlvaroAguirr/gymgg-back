@@ -6,4 +6,4 @@ python-dateutil
 djangorestframework-simplejwt
 dj-rest-auth
 django-allauth
-request
+requests

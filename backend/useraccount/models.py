@@ -47,8 +47,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def save(self, *args, **kwargs):
         if not self.date_expiration:
-            if self.membership:
-                self.date_expiration = self.date_pay + relativedelta(months=self.membership.membership_duration)
+            if self.membership and self.date_pay:
+                duration = self.membership.duration_membership
+                if duration == "mensual":
+                    self.date_expiration = self.date_pay + relativedelta(months=1)
+                elif duration == "anual":
+                    self.date_expiration = self.date_pay + relativedelta(years=1)
         super().save(*args, **kwargs)
 
     is_active= models.BooleanField(default=True)

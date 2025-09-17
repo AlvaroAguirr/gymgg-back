@@ -3,7 +3,7 @@ from rest_framework.generics import (ListAPIView, CreateAPIView, DestroyAPIView,
 
 from membership.serializers import MembershipSerializer
 from .models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserSerializerEdit
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -13,6 +13,7 @@ class UserListApi(ListAPIView):
     serializer_class = UserSerializer
     def get_queryset(self):
         return User.objects.all()
+    
 class UserCreateApi(CreateAPIView):
     serializer_class = UserSerializer
 
@@ -37,7 +38,7 @@ class UserDeleteApi(DestroyAPIView):
 
 class UserUpdateApi(UpdateAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserSerializerEdit
 
 class MembershipListApi(ListAPIView):
     serializer_class = MembershipSerializer

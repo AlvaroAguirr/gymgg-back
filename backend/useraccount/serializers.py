@@ -9,7 +9,7 @@ from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
     # Para mostrar datos completos al leer
-    membership = MembershipSerializer(read_only=True)
+
 
     # Para recibir solo el ID al crear/actualizar
     membership_id = serializers.PrimaryKeyRelatedField(
@@ -24,6 +24,24 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True}  # No mostrar la contraseña en las respuestas
         }
+
+
+class UserSerializerEdit(serializers.ModelSerializer):
+    # Para mostrar datos completos al leer
+
+
+    # Para recibir solo el ID al crear/actualizar
+    membership_id = serializers.PrimaryKeyRelatedField(
+        queryset=Membership.objects.all(),
+        source='membership',
+        write_only=True
+    )
+    class Meta:
+        model = User
+        fields = ['id', 'name', 'email', 'membership_id', 'date_pay', 'date_expiration']
+        read_only_fields = ['date_expiration']
+   
+ 
  
 # <<<<<<< HEAD
 #     def get_name(self, obj):

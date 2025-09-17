@@ -1,31 +1,13 @@
 import uuid
-
 from django.db import models
-from datetime import timedelta
 
-
-
-
-
-class Membership (models.Model):
-    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name_membership=models.CharField(max_length=50)
-    price_membership=models.IntegerField()
-    offers_membership=models.IntegerField(null=True)
-    membership_duration=models.IntegerField() 
-
+class Membership(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name_membership = models.CharField(max_length=50)  # 'Membresía Plus'
+    price_membership = models.DecimalField(max_digits=10, decimal_places=2)  # 799.00
+    duration_membership = models.CharField(max_length=50,  null=True, blank=True) 
+    offers_membership = models.JSONField(null=True, blank=True)  # ['Acceso...', 'Uso ilimitado...', ...]
+    status_membership= models.BooleanField(default=True)
 
     def __str__(self):
         return self.name_membership
-    
-
-    
-    
-
-# Create your models here.
-
-
-# tipo de membre
-# precio_membe
-# oferss
-# duracion_mebresi

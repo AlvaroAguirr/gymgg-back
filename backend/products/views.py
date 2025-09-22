@@ -33,20 +33,24 @@ class ProductoDetailApi(RetrieveAPIView):
 class ProductoDeleteApi(DestroyAPIView):
     queryset = Product.objects.filter()
     serializer_class = ProductoSerializer
-    permission_classes = [IsAuthenticated]  # 👈 Protegida
+    permission_classes = [IsAuthenticated] 
 
 
 class ProductoUpdateApi(UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductoSerializer
-    permission_classes = [IsAuthenticated]  # 👈 Protegida
+    permission_classes = [IsAuthenticated]  
 
 
 
 class CategoryListApi(ListAPIView):
     serializer_class = CategoriesSerializer
     permission_classes = [AllowAny]
-  # 👈 Protegida
 
     def get_queryset(self):
         return Category.objects.all()
+    
+    
+class CategoryCreateApi(CreateAPIView):
+    serializer_class = CategoriesSerializer
+    permission_classes=[IsAuthenticated]

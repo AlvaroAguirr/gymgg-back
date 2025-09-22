@@ -5,3 +5,5 @@ django-cors-headers
 python-dateutil
 djangorestframework-simplejwt
 dj-rest-auth
+django-allauth
+requests

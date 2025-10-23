@@ -22,8 +22,66 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'name', 'email', 'password', 'membership', 'membership_id', 'date_pay', 'date_expiration']
         extra_kwargs = {
-            'password': {'write_only': True}  # No mostrar la contraseña en las respuestas
+            'password': {'write_only': True},  # No mostrar la contraseña en las respuestas
+            'is_active': {'write_only': True},
+            'is_staff': {'write_only': True},
+            'is_superuser': {'write_only': True},
         }
+        
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        # 🔽 Convertir valores de permisos a booleanos si vienen como string
+        for field in ['is_active', 'is_staff', 'is_superuser']:
+            if field in validated_data:
+                value = validated_data[field]
+                if isinstance(value, str):
+                    validated_data[field] = value.lower() == 'true'
+
+        user = User(**validated_data)
+        if password:
+            user.set_password(password)
+        user.save()
+        return user
+    
+
+
+class UserSerializer2(serializers.ModelSerializer):
+    membership_id = serializers.PrimaryKeyRelatedField(
+        queryset=Membership.objects.all(),
+        source='membership',
+        write_only=True
+    )
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'name', 'email', 'password','membership',
+            'membership_id', 'date_pay', 'date_expiration',
+            'is_active', 'is_staff', 'is_superuser'
+        ]
+        read_only_fields = ['date_expiration']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'is_active': {'write_only': True},
+            'is_staff': {'write_only': True},
+            'is_superuser': {'write_only': True},
+        }
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        name = validated_data.pop('name', None)
+        email = validated_data.pop('email', None)
+
+        # Usar el manager personalizado para crear correctamente el usuario
+        user = User.objects.create_user(
+            name=name,
+            email=email,
+            password=password,
+            **validated_data
+        )
+
+        return user
+
 
 
 class UserSerializerEdit(serializers.ModelSerializer):
@@ -49,18 +107,18 @@ class UserSerializerEdit(serializers.ModelSerializer):
     
 
 
-# class CustomRegisterSerializer(RegisterSerializer):
-#     username = None  # <- Ocultamos este ca
-#     name = serializers.CharField(required=True)
+class CustomRegisterSerializer(RegisterSerializer):
+    username = None  # <- Ocultamos este ca
+    name = serializers.CharField(required=True)
 
-#     def get_cleaned_data(self):
-#         print("CustomLoginSerializer.validate llamado")
-#         data = super().get_cleaned_data()
-#         data['name'] = self.validated_data.get('name', '')
-#         data['email'] = self.validated_data.get('email', '')
-#         data['password1'] = self.validated_data.get('password1', '')
-#         data['password2'] = self.validated_data.get('password2', '')
-#         return data
+    def get_cleaned_data(self):
+        print("CustomLoginSerializer.validate llamado")
+        data = super().get_cleaned_data()
+        data['name'] = self.validated_data.get('name', '')
+        data['email'] = self.validated_data.get('email', '')
+        data['password1'] = self.validated_data.get('password1', '')
+        data['password2'] = self.validated_data.get('password2', '')
+        return data
     
 
 

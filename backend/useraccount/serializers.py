@@ -30,7 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
         
     def create(self, validated_data):
         password = validated_data.pop('password', None)
-        # 🔽 Convertir valores de permisos a booleanos si vienen como string
+        # formzmiento de tipado 
         for field in ['is_active', 'is_staff', 'is_superuser']:
             if field in validated_data:
                 value = validated_data[field]
@@ -122,31 +122,6 @@ class CustomRegisterSerializer(RegisterSerializer):
     
 
 
-# class CustomLoginSerializer(LoginSerializer):
-#     username = None
-#     email = serializers.EmailField(required=True)
-
-#     def validate(self, attrs):
-#         email = attrs.get('email')
-#         password = attrs.get('password')
-
-#         if email and password:
-#             user = self.context['request'].user \
-#                    if self.context.get('request') and self.context['request'].user.is_authenticated \
-#                    else None
-#             if not user:
-#                 user = self.authenticate(
-#                     self.context.get('request'),
-#                     email=email,
-#                     password=password
-#                 )
-#             if not user:
-#                 raise serializers.ValidationError('Credenciales inválidas.')
-#         else:
-#             raise serializers.ValidationError('Debe ingresar email y contraseña.')
-
-#         attrs['user'] = user
-#         return attrs
 
     def get_date_expiration(self, obj):
         if obj.date_expiration:
@@ -161,6 +136,4 @@ class CustomRegisterSerializer(RegisterSerializer):
             user.save()
         return user
 
-    # class Meta:
-    #     model = User
-    #     fields = ['id', 'name', 'email', 'password', 'membership', 'membership_id', 'date_pay', 'date_expiration']
+    

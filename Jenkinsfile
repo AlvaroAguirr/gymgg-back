@@ -5,7 +5,7 @@ pipeline {
 
         stage('Clonar repositorio') {
             steps {
-                git branch: 'master', url: 'https://github.com/AlvaroAguirr/gymgg-back.git'
+                git 'https://github.com/AlvaroAguirr/gymgg-back.git'
             }
         }
 
@@ -23,8 +23,8 @@ pipeline {
         stage('Migraciones') {
             steps {
                 bat '''
-                cd backend
                 call venv\\Scripts\\activate
+                cd backend
                 python manage.py makemigrations
                 python manage.py migrate
                 '''
@@ -34,8 +34,8 @@ pipeline {
         stage('Pruebas') {
             steps {
                 bat '''
-                cd backend
                 call venv\\Scripts\\activate
+                cd backend
                 python manage.py test
                 '''
             }

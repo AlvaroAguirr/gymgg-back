@@ -10,21 +10,21 @@ pipeline {
 
         stage('Instalar dependencias') {
             steps {
-                sh 'python -m venv venv'
-                sh '. venv/bin/activate && pip install --upgrade pip'
-                sh '. venv/bin/activate && pip install -r requirements.txt'
+                bat 'python -m venv venv'
+                bat '.\\venv\\Scripts\\activate && pip install --upgrade pip'
+                bat '.\\venv\\Scripts\\activate && pip install -r requirements.txt'
             }
         }
 
         stage('Migraciones') {
             steps {
-                sh '. venv/bin/activate && python manage.py migrate'
+                bat '.\\venv\\Scripts\\activate && python manage.py migrate'
             }
         }
 
         stage('Pruebas') {
             steps {
-                sh '. venv/bin/activate && python manage.py'
+                bat '. venv/bin/activate && python manage.py'
             }
         }
     }

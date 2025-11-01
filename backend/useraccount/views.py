@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from rest_framework.generics import (ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView)
+from rest_framework.permissions import IsAuthenticated
+
 
 from membership.serializers import MembershipSerializer
 from .models import User
-from .serializers import UserSerializer, UserSerializerEdit
+from .serializers import UserSerializer, UserSerializerEdit, UserSerializer2
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,13 +16,47 @@ class UserListApi(ListAPIView):
     def get_queryset(self):
         return User.objects.all()
     
+    
 class UserCreateApi(CreateAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserSerializer2
+    permission_classes=[IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        current_user = request.user
+        print(current_user)
+        print(current_user.is_superuser)
+        # Si el usuario es superadmin → crea recepcionistas
+        if current_user.is_superuser:
+            role = request.data.get('role', 'recepcionista')
+            user_data = request.data.copy()
+            print(f"user data {user_data}")
+            if role == 'recepcionista':
+                user_data['is_staff'] = True
+                user_data['is_active'] = True
+                user_data['is_superuser'] = False
+                print(user_data)
+            else:
+                return Response({'detail': 'Rol inválido para superadmin.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        
+        # Si el usuario es recepcionista → crea usuarios comunes
+        elif current_user.is_staff:
+            user_data = request.data.copy()
+            user_data['is_staff'] = False
+            user_data['is_superuser'] = False
+            user_data['is_active'] = False  # no puede acceder al sistema
+
+         
+
+        else:
+            return Response({'detail': 'No tienes permisos para crear usuarios.'}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = self.serializer_class(data=user_data)
+        # serializer = self.serializer_class(data=user_data)
         if serializer.is_valid():
             serializer.save()
+            print(serializer)
+            print(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             print("Errores de validación:", serializer.errors)  # <--- Aquí

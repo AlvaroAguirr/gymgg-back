@@ -16,7 +16,7 @@ SECRET_KEY = 'django-insecure-nkxwe^v$zf7!#y$42qwgi#5^h2lzix2%p6+_t@oueicw72!a$!
 DEBUG = True
 
 AUTH_USER_MODEL = 'useraccount.User'
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 REST_USE_JWT = True
 TOKEN_MODEL = None

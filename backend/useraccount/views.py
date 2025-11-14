@@ -3,9 +3,14 @@ from rest_framework.generics import (ListAPIView, CreateAPIView, DestroyAPIView,
 from rest_framework.permissions import IsAuthenticated
 
 
+
 from membership.serializers import MembershipSerializer
 from .models import User
-from .serializers import UserSerializer, UserSerializerEdit, UserSerializer2
+from .serializers import UserSerializer, UserSerializerEdit, UserSerializer2,MyTokenObtainPairSerializer
+
+
+
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -61,6 +66,12 @@ class UserCreateApi(CreateAPIView):
         else:
             print("Errores de validación:", serializer.errors)  # <--- Aquí
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
 
 
 # ver objeto especifico

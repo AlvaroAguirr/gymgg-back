@@ -1,8 +1,9 @@
 from dj_rest_auth.serializers import LoginSerializer
 from rest_framework import serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from membership.serializers import MembershipSerializer
+
 from membership.models import Membership
 
 from .models import User
@@ -136,4 +137,28 @@ class CustomRegisterSerializer(RegisterSerializer):
             user.save()
         return user
 
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Información extra en el payload del token
+        token['name'] = user.name
+        token['email'] = user.email
+        token['is_staff'] = user.is_staff
+        token['is_superuser'] = user.is_superuser
+        token['is_active'] = user.is_active
+        token['membership'] = str(user.membership.id) if user.membership else None
+
+        return token
     
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        data['is_staff'] = self.user.is_staff
+        data['is_superuser'] = self.user.is_superuser
+        data['is_active'] = self.user.is_active
+
+
+        return data

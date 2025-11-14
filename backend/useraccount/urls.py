@@ -3,6 +3,8 @@ from rest_framework import routers
 
 from . import views
 
+from .views import MyTokenObtainPairView
+
 urlpatterns = [
     path('', views.UserListApi.as_view()),
     path('create', views.UserCreateApi.as_view()),
@@ -10,4 +12,6 @@ urlpatterns = [
     path('delete/<pk>', views.UserDeleteApi.as_view()),
     path('update/<pk>', views.UserUpdateApi.as_view()),
     path('categories/', views.MembershipListApi.as_view()),
+    path('login/', MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
+
 ]

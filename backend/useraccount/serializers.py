@@ -46,6 +46,38 @@ class UserSerializer(serializers.ModelSerializer):
     
 
 
+class UserSerializerAdmin(serializers.ModelSerializer):
+ 
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'name', 'email', 'password',
+            'is_active', 'is_staff', 'is_superuser'
+        ]
+        read_only_fields = ['date_expiration']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'is_active': {'write_only': True},
+            'is_staff': {'write_only': True},
+            'is_superuser': {'write_only': True},
+        }
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        name = validated_data.pop('name', None)
+        email = validated_data.pop('email', None)
+
+        # Usar el manager personalizado para crear correctamente el usuario
+        user = User.objects.create_user(
+            name=name,
+            email=email,
+            password=password,
+            **validated_data
+        )
+
+        return user
+
 class UserSerializer2(serializers.ModelSerializer):
     membership_id = serializers.PrimaryKeyRelatedField(
         queryset=Membership.objects.all(),

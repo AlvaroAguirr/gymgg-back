@@ -38,13 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'useraccount.apps.UseraccountConfig',
 
-
     'django.contrib.sites', 
 
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-
 
     'rest_framework',
     'rest_framework_simplejwt',
@@ -53,15 +51,13 @@ INSTALLED_APPS = [
     
     'corsheaders',
 
-    
     'dj_rest_auth',
     'dj_rest_auth.registration',
-
 
     'products',
     'sales',
     'membership',
-   
+    'client_profile',
 ]
 
 SITE_ID = 1

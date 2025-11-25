@@ -12,6 +12,7 @@ urlpatterns = [
     path('update/<pk>', views.ProductoUpdateApi.as_view()),
     path('categories/', views.CategoryListApi.as_view()),
     path('categories/create', views.CategoryCreateApi.as_view()),
+    # path('upload-image/', views.UploadImageApi.as_view()),
 
     
 ]

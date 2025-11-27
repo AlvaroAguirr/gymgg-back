@@ -35,6 +35,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 class ProductoListApi(ListAPIView):
     serializer_class = ProductoSerializer
+    permission_classes = [AllowAny]
     def get_queryset(self):
         return Product.objects.all()
     

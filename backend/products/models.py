@@ -14,6 +14,7 @@ class Product(models.Model):
     price_product = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
     stock = models.IntegerField()
+    image_url = models.URLField(max_length=500, blank=True, null=True)
     category = models.ForeignKey(Category, related_name='category', on_delete=models.CASCADE)
 
     def __str__(self):

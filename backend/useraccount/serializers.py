@@ -187,7 +187,13 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     
     def validate(self, attrs):
         data = super().validate(attrs)
+        
+        user = self.user 
 
+        data['name']= self.user.name
+        data['email']=self.user.email
+        data['membership'] = str(user.membership.id) if user.membership else None
+        
         data['is_staff'] = self.user.is_staff
         data['is_superuser'] = self.user.is_superuser
         data['is_active'] = self.user.is_active

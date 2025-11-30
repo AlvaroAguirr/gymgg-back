@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'sales',
     'membership',
     'client_profile',
+    'routines',
 ]
 
 SITE_ID = 1

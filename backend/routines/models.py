@@ -15,8 +15,9 @@ class Routina(models.Model):
     )
 
     Routine_name = models.CharField(max_length=100)
-    #tiemp
+    Description=models.TextField(verbose_name="descripcion", max_length=50, default="")
     Last_time_done=models.DateTimeField(null=True,blank=True)
+    Times_done=models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.Routine_name}-{self.user.email}"

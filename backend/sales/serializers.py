@@ -43,9 +43,21 @@ class SaleSerializer(serializers.ModelSerializer):
             quantity = item_data['quantity']
             unit_price = item_data['unit_price']
             total_price = quantity * unit_price
+            
+            # Actualizar stock del producto
+            product = item_data['product']
+            if product.stock >= quantity:
+                product.stock -= quantity
+                product.save()
+            else:
+                # Opcional: Lanzar error si no hay stock suficiente, 
+                # aunque el frontend ya debería haberlo validado.
+                # Por seguridad, podríamos lanzar una excepción aquí.
+                raise serializers.ValidationError(f"No hay suficiente stock para {product.name_product}")
+
             SaleItem.objects.create(
                 sale=sale,
-                product=item_data['product'],
+                product=product,
                 quantity=quantity,
                 unit_price=unit_price,
                 total_price=total_price

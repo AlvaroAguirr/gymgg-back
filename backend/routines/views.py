@@ -3,6 +3,10 @@ from django.shortcuts import render
 # Create your views here.
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+
 from .models import Routina, RoutineHistory,Exercise
 from .serializers import RoutinaSerializer, RoutineHistorySerializer,ExerciseSerializer
 
@@ -46,6 +50,25 @@ class ExerciseViewSet(viewsets.ModelViewSet):
     queryset = Exercise.objects.all()
     serializer_class = ExerciseSerializer
     permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=["post"])
+    def by_ids(self, request):
+        """
+        POST /exercises/by_ids/
+        Body: { "ids": [1,2,5] }
+        """
+        ids = request.data.get("ids", None)
+
+        if not ids or not isinstance(ids, list):
+            return Response(
+                {"error": "Se requiere una lista de IDs."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        exercises = Exercise.objects.filter(id__in=ids)
+        serializer = self.get_serializer(exercises, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class RoutinaViewSet(viewsets.ModelViewSet):
     serializer_class = RoutinaSerializer

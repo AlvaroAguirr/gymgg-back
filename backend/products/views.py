@@ -40,8 +40,54 @@ class ProductoListApi(ListAPIView):
         return Product.objects.all()
     
 class ProductoCreateApi(CreateAPIView):
+    queryset = Product.objects.all()
     serializer_class = ProductoSerializer
-    permission_classes=[IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+
+        # Limpieza de valores (evita errores de Excel)
+        for key, value in data.items():
+            if isinstance(value, str):
+                data[key] = value.strip()
+
+        # Validaciones manuales
+        required_fields = ["name_product", "price_product", "stock", "category"]
+
+        for field in required_fields:
+            if not data.get(field):
+                return Response(
+                    {"error": f"El campo '{field}' está vacío o no existe."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        # Validar numéricos
+        try:
+            float(data["price_product"])
+        except:
+            return Response(
+                {"error": "El precio no es un número válido."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            int(data["stock"])
+        except:
+            return Response(
+                {"error": "El stock no es un número válido."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Validar categoría existente
+        if not Category.objects.filter(name_category=data["category"]).exists():
+            return Response(
+                {"error": f"La categoría '{data['category']}' no existe."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Crear producto
+        return super().create(request, *args, **kwargs)
 
 
 
@@ -61,7 +107,23 @@ class ProductoDeleteApi(DestroyAPIView):
 class ProductoUpdateApi(UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductoSerializer
-    permission_classes = [IsAuthenticated]  
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        partial = True
+        instance = self.get_object()
+        data = request.data.copy()
+
+        # Si no mandan imagen, conserva la anterior
+        if "image_url" not in data or data["image_url"] in ["", None, "null"]:
+            data["image_url"] = instance.image_url
+
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
+
 
 
 

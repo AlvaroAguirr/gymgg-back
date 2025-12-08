@@ -1,5 +1,7 @@
 from django.db import models
 from useraccount.models import User
+from django.utils import timezone
+
 
 # espacio para modelo ejercicios
 class Exercise(models.Model):
@@ -93,7 +95,7 @@ class Routina(models.Model):
 class RoutineHistory(models.Model):
 
     routine = models.ForeignKey('Routina', on_delete=models.CASCADE)
-    Date_realization= models.DateTimeField(auto_now_add=True)
+    Date_realization= models.DateTimeField(default=timezone.now)
     #tiempo total en la que se tardo en completar en segundos
     Time_to_done= models.IntegerField()
 

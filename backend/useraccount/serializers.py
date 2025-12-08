@@ -9,41 +9,35 @@ from membership.models import Membership
 from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
-    # Para mostrar datos completos al leer
-
-
-    # Para recibir solo el ID al crear/actualizar
     membership_id = serializers.PrimaryKeyRelatedField(
         queryset=Membership.objects.all(),
         source='membership',
-        write_only=True
+        write_only=True,
+        required=False,
+        allow_null=True
     )
 
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'password', 'membership', 'membership_id', 'date_pay', 'date_expiration']
+        fields = [
+            'id', 'name', 'email', 'password', 
+            'role',  # ← ASEGÚRATE DE QUE ESTÉ AQUÍ
+            'membership', 'membership_id', 
+            'date_pay', 'date_expiration', 
+            'is_active'
+        ]
         extra_kwargs = {
-            'password': {'write_only': True},  # No mostrar la contraseña en las respuestas
-            'is_active': {'write_only': True},
-            'is_staff': {'write_only': True},
-            'is_superuser': {'write_only': True},
+            'password': {'write_only': True},
+            'is_active': {'read_only': True},
         }
         
     def create(self, validated_data):
         password = validated_data.pop('password', None)
-        # formzmiento de tipado 
-        for field in ['is_active', 'is_staff', 'is_superuser']:
-            if field in validated_data:
-                value = validated_data[field]
-                if isinstance(value, str):
-                    validated_data[field] = value.lower() == 'true'
-
         user = User(**validated_data)
         if password:
             user.set_password(password)
         user.save()
-        return user
-    
+        return user 
 
 
 class UserSerializerAdmin(serializers.ModelSerializer):
@@ -178,6 +172,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Información extra en el payload del token
         token['name'] = user.name
         token['email'] = user.email
+        token['role'] = user.role  # ← NUEVO: Agregar esto
         token['is_staff'] = user.is_staff
         token['is_superuser'] = user.is_superuser
         token['is_active'] = user.is_active
@@ -190,13 +185,78 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         
         user = self.user 
 
-        data['name']= self.user.name
-        data['email']=self.user.email
+        data['name'] = self.user.name
+        data['email'] = self.user.email
+        data['role'] = self.user.role  # ← NUEVO: Agregar esto
         data['membership'] = str(user.membership.id) if user.membership else None
-        
         data['is_staff'] = self.user.is_staff
         data['is_superuser'] = self.user.is_superuser
         data['is_active'] = self.user.is_active
 
-
         return data
+
+
+class UserSerializerWithRole(serializers.ModelSerializer):
+    membership_id = serializers.PrimaryKeyRelatedField(
+        queryset=Membership.objects.all(),
+        source='membership',
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+    role_display = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'name', 'email', 'password', 'role', 'role_display',
+            'membership', 'membership_id', 'date_pay', 'date_expiration',
+            'is_active', 'is_staff', 'is_superuser'
+        ]
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'is_active': {'read_only': True},
+            'is_staff': {'read_only': True},
+            'is_superuser': {'read_only': True},
+        }
+
+    def get_role_display(self, obj):
+        """Retorna el nombre del rol en español"""
+        role_map = {
+            'admin': 'Administrador',
+            'receptionist': 'Recepcionista',
+            'user': 'Usuario'
+        }
+        return role_map.get(obj.role, 'Usuario')
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        role = validated_data.get('role', 'user')
+        
+        # Crear usuario según el rol
+        if role == 'admin':
+            user = User.objects.create_superuser(
+                email=validated_data.get('email'),
+                password=password,
+                name=validated_data.get('name'),
+                membership=validated_data.get('membership'),
+                date_pay=validated_data.get('date_pay')
+            )
+        elif role == 'receptionist':
+            user = User.objects.create_recepcionist(
+                email=validated_data.get('email'),
+                password=password,
+                name=validated_data.get('name'),
+                membership=validated_data.get('membership'),
+                date_pay=validated_data.get('date_pay')
+            )
+        else:
+            user = User.objects.create_user(
+                email=validated_data.get('email'),
+                password=password,
+                name=validated_data.get('name'),
+                membership=validated_data.get('membership'),
+                date_pay=validated_data.get('date_pay')
+            )
+        
+        return user

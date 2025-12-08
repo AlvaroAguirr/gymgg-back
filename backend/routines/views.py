@@ -6,6 +6,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from django.utils import timezone
+from datetime import timedelta
+from datetime import datetime
+from django.utils.dateparse import parse_datetime
+
+import math 
+import calendar 
 
 from .models import Routina, RoutineHistory,Exercise
 from .serializers import RoutinaSerializer, RoutineHistorySerializer,ExerciseSerializer
@@ -80,10 +87,64 @@ class RoutinaViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+#filtrado para historial
 
 class RoutineHistoryViewSet(viewsets.ModelViewSet):
     queryset = RoutineHistory.objects.all()
     serializer_class = RoutineHistorySerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        user = self.request.user
+        return RoutineHistory.objects.filter(routine__user=user)
+
+    # Filtrado por mes
+    @action(detail=False, methods=['get'])
+    def all_months(self, request):
+        hoy=timezone.now()
+        year= hoy.year
+        queryset= self.get_queryset().filter(
+            Date_realization__year=year
+        ).order_by("Date_realization")
+
+        serializer = self.get_serializer(queryset, many=True)
+        data=serializer.data
+        
+        result= {}
+
+        # Crear estructura base para los 12 meses
+        for month in range(1, 13):
+            month_name = calendar.month_name[month]
+
+            result[month_name] = {
+                "week_1": [],
+                "week_2": [],
+                "week_3": [],
+                "week_4": [],
+                "week_5": [],
+            }
+        for item in data:
+            fecha = parse_datetime(item["Date_realization"]).date()
+            day=fecha.day
+
+            week_number = math.ceil(day / 7)
+            week_key = f"week_{week_number}"
+
+            month_name = calendar.month_name[fecha.month]
+            result[month_name][week_key].append(item)
+
+        return Response(result)
+
+
+   # Filtrar por semana
+    @action(detail=False, methods=['get'])
+    def this_week(self, request):
+        hoy = timezone.now()
+        inicio_semana = hoy - timedelta(days=hoy.weekday())
+        fin_semana = inicio_semana + timedelta(days=6)
+        queryset = self.get_queryset().filter(
+            Date_realization__date__range=[inicio_semana.date(), fin_semana.date()]
+        )
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 

@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'sales',
     'membership',
     'client_profile',
+    'drf_yasg',
     'routines',
 ]
 
